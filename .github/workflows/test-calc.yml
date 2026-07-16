@@ -1,0 +1,26 @@
+name: Testing Calculator
+
+on:
+    push:
+        branches:
+            - main
+
+jobs:
+    test:
+
+        runs-on: ubuntu-latest
+        steps:
+            - name: Copy the code
+              uses: actions/checkout@v4
+
+            - name: Install Python
+              uses: actions/setup-python@v5
+              with:
+                python-version: "3.11"
+
+            
+            - name: Install Dependiences
+              run: pip install -r requirements.txt
+
+            - name: Run test
+              run: python -m pytest
