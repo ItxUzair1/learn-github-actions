@@ -1,0 +1,66 @@
+name : Build Docker image
+
+on:
+    push:
+        branches: [ main ]
+
+
+jobs:
+    lint:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout the code
+              uses: actions/checkout@v4
+            
+            - name: Setup Python
+              uses: actions/setup-python@v5
+              with:
+                python-version: "3.11"
+
+
+            - name: Install th linit Library
+              run: pip install ruff
+
+            - name: Check the code quality
+              run:  ruff check .
+
+    
+    test:
+        needs: lint
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout the code
+              uses: actions/checkout@v4
+
+            - name: Setup python
+              uses: actions/setup-python@v5
+              with:
+                python-version: '3.11'
+
+            - name: Install dependiences
+              run: pip install -r requirements.txt
+
+            - name: test the code
+              run: pytest
+
+    docker-build:
+        needs: test
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout the code
+              uses: actions/checkout@v4
+
+            - name: Docker Login
+              uses: docker/login-action@v3
+              with:
+                username: ${{secrets.DOCKER_USERNAME}}
+                password: ${{secrets.DOCKER_TOKEN}}
+
+            - name: Build the image
+              run: docker build -t muzair12/fast-api:v1 .
+
+            - name: push image to Docker Hub
+              run: docker push muzair12/fast-api:v1
